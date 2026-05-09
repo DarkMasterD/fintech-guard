@@ -26,6 +26,8 @@ services:
   backend:
     build: ./backend
     container_name: fintech-backend
+    ports:
+      - "3000:3000" # <--- Postman pueda entrar
     depends_on:
       - db
       - redis
