@@ -1,0 +1,18 @@
+# Credenciales y Secretos
+.env
+
+# Dependencias (se instalan dentro del Docker)
+node_modules/
+npm-debug.log
+
+# Datos persistentes de Docker (carpetas locales)
+db_data/
+
+# Archivos de sistema/IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Builds de producción de React
+dist/
+build/

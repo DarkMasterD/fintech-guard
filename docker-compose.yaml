@@ -1,0 +1,64 @@
+services:
+  # Base de Datos (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: fintech-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5434:5432" # <--- ESTO PERMITE LA CONEXIÓN EXTERNA
+    volumes:
+      - ./db_data:/var/lib/postgresql/data # Persistencia de datos
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fintech-net
+
+  # Caché para el Motor de Reglas
+  redis:
+    image: redis:7-alpine
+    container_name: fintech-redis
+    networks:
+      - fintech-net
+
+  # Backend (Motor de Reglas)
+  backend:
+    build: ./backend
+    container_name: fintech-backend
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+    networks:
+      - fintech-net
+
+  # Frontend (Consola de Auditoría)
+  frontend:
+    build: ./frontend-auditoria
+    container_name: fintech-frontend
+    ports:
+      - "8080:5173" # Acceso desde tu navegador en localhost:8080
+    networks:
+      - fintech-net
+
+  # Simulador (Generador de Tráfico)
+  simulator:
+    build: ./simulator-iot
+    container_name: fintech-simulator
+    depends_on:
+      - backend
+    ports:
+      - "8081:5173" # Acceso desde tu navegador en localhost:8081
+    networks:
+      - fintech-net
+
+# Definición de Redes y Volúmenes
+networks:
+  fintech-net: # Red interna para comunicación por nombres de servicio 
+    driver: bridge
+
+volumes:
+  db_data: # Espacio en disco persistente
