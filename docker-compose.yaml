@@ -10,7 +10,7 @@ services:
     ports:
       - "5434:5432" # <--- ESTO PERMITE LA CONEXIÓN EXTERNA
     volumes:
-      - ./db_data:/var/lib/postgresql/data # Persistencia de datos
+      - db_data:/var/lib/postgresql/data # Persistencia de datos
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - fintech-net
